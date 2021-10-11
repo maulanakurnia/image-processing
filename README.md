@@ -1,4 +1,4 @@
-# Image-Manipulation
+# Image Processing
 assignments from Pendidikan Ganesha University's, Pengolahan Citra Digital (PCD) course
 
 # author
