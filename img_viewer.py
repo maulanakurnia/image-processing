@@ -1,4 +1,3 @@
-from tkinter.constants import HIDDEN
 import PySimpleGUI as sg
 import os.path
 from PIL import Image, ImageOps

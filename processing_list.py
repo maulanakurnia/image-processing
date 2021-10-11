@@ -1,4 +1,3 @@
-from tkinter import Scale
 from PIL import Image, ImageOps, ImageDraw
 import math
 from math import sin, cos, pi, radians
