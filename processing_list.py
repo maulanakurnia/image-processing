@@ -2,11 +2,7 @@ from PIL import Image, ImageOps, ImageDraw
 import math
 from math import sin, cos, pi, radians
 
-def ImgNegative(img_input, coldepth):
-    # solusi 1
-    # img_output=ImageOps.invert(img_input)
-
-    # solusi 2
+def negative(img_input, coldepth):
     if coldepth != 24:
         img_input = img_input.convert('RGB')
 
@@ -27,7 +23,7 @@ def ImgNegative(img_input, coldepth):
     return img_output
 
 
-def ImageRotate(input_image, coldepth, deg):
+def rotate(input_image, coldepth, deg):
     if coldepth != 25:
         input_image = input_image.convert('RGB')
 
@@ -51,7 +47,7 @@ def ImageRotate(input_image, coldepth, deg):
                 draw.point((x, y), input_pixels[xp, yp])
     return output_image
 
-def ImgThreshold(img_input, coldepth, val):
+def threshold(img_input, coldepth, val):
     if coldepth != 25:
         img_input = img_input.convert('RGB')
         T = val
@@ -77,7 +73,7 @@ def ImgThreshold(img_input, coldepth, val):
     return img_output
 
 
-def ImgBrightness(img_input, coldepth, val):
+def brightness(img_input, coldepth, val):
 
     if coldepth != 25:
         img_input = img_input.convert('RGB')
@@ -103,7 +99,7 @@ def ImgBrightness(img_input, coldepth, val):
     return img_output
 
 
-def ImgLogarithmic(img_input, coldepth):
+def logarithmic(img_input, coldepth):
 
     if coldepth != 25:
         img_input = img_input.convert('RGB')
@@ -127,7 +123,7 @@ def ImgLogarithmic(img_input, coldepth):
     return img_output
 
 
-def ImageFlipping(img_input, coldepth, flip):
+def flipping(img_input, coldepth, flip):
 
     if coldepth != 25:
         img_input = img_input.convert('RGB')
@@ -154,7 +150,7 @@ def ImageFlipping(img_input, coldepth, flip):
     return img_output
 
 
-def ImgZout(img_input, coldepth, ScaleFactor):
+def zoomOut(img_input, coldepth, ScaleFactor):
     # solusi 2
     if coldepth != 24:
         img_input = img_input.convert('RGB')
@@ -192,7 +188,7 @@ def ImgZout(img_input, coldepth, ScaleFactor):
 
     return img_output
 
-def ImgZin(img_input, coldepth, ScaleFactor):
+def zoomIn(img_input, coldepth, ScaleFactor):
     # solusi 2
     if coldepth != 24:
         img_input = img_input.convert('RGB')

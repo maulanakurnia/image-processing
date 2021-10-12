@@ -4,14 +4,13 @@ from PIL import Image, ImageOps
 from PySimpleGUI.PySimpleGUI import Cancel, Slider
 from processing_list import *
 
-sg.theme('default')
-
+sg.theme('DefaultNoMoreNagging')
 file_list_column = [
     [
         sg.Text("Open Image Folder :"),
     ],
     [
-        sg.In(size=(20, 1), enable_events=True, key="ImgFolder"),
+        sg.In(size=(20, 1), enable_events=True, key="folderImage"),
         sg.FolderBrowse(),
     ],
     [
@@ -19,24 +18,30 @@ file_list_column = [
     ],
     [
         sg.Listbox(
-            values=[], enable_events=True, size=(18, 10), key="ImgList"
+            values=[], enable_events=True, size=(25, 10), key="listImage"
         )
     ],
     [
         sg.Text("Image Information:"),
     ],
     [
-        sg.Text(size=(20, 1), key="ImgSize"),
+        sg.Text(size=(20, 1), key="imageSize"),
     ],
     [
-        sg.Text(size=(20, 1), key="ImgColorDepth"),
+        sg.Text(size=(20, 1), key="imageColorDepth"),
     ],
 ]
 
 image_viewer_column = [
-    [sg.Text("Image Input :")],
-    [sg.Text(size=(40, 1), key="FilepathImgInput")],
-    [sg.Image(key="ImgInputViewer")],
+    [
+        sg.Text("Image Input :")
+    ],
+    [
+        sg.Text(size=(40, 1), key="FilepathImgInput")
+    ],
+    [
+        sg.Image(key="ImgInputViewer")
+    ],
 ]
 
 list_processing = [
@@ -44,16 +49,16 @@ list_processing = [
         sg.Text("List of Processing:"),
     ],
     [
-        sg.Button("Image Negative", size=(20, 1), key="ImgNegative"),
+        sg.Button("Image Negative", size=(20, 1), key="negativeImage"),
     ],
     [
-        sg.Button("Image Threshold", size=(20, 1), key="ImgThreshold"),
+        sg.Button("Image Threshold", size=(20, 1), key="thresholdImage"),
     ],
     [
-        sg.Button("Image Brightness", size=(20, 1), key="ImgBrightness"),
+        sg.Button("Image Brightness", size=(20, 1), key="imageBrightness"),
     ],
     [
-        sg.Button("Image Logarithmic", size=(20, 1), key="ImgLogarithmic"),
+        sg.Button("Image Logarithmic", size=(20, 1), key="imageLogarithmic"),
     ],
     [
         sg.Text("Image Flip: "),
@@ -69,7 +74,7 @@ list_processing = [
         sg.Text("Image Rotate : ")
     ],
     [
-        sg.Button("Rotate", size=(20, 1), key="Rotate")
+        sg.Button("rotateImage", size=(20, 1), key="rotateImage")
     ],
     [
         sg.Text("Image Scalling: ")
@@ -96,11 +101,10 @@ list_processing = [
     ]
 ]
 
-# Kolom Area No 4: Area viewer image output
 val=0
 image_viewer_column2 = [
     [sg.Text("Image Processing Output:")],
-    [sg.Text(size=(40, 1), key="ImgProcessingType")],
+    [sg.Text(size=(40, 1), key="typeProcessing")],
     [sg.Image(key="ImgOutputViewer")],
 ]
 
@@ -118,20 +122,18 @@ layout = [
 ]
 
 window = sg.Window("Mini Image Editor", layout)
-
 filename_out = "output.png"
 
 while True:
     event, values = window.read()
-
+    
     if event == "Exit" or event == sg.WIN_CLOSED:
         break
 
-    if event == "ImgFolder":
-        folder = values["ImgFolder"]
+    if event == "folderImage":
+        folder = values["folderImage"]
 
         try:
-            # Get list of files in folder
             file_list = os.listdir(folder)
         except:
             file_list = []
@@ -143,39 +145,36 @@ while True:
             and f.lower().endswith((".png", ".gif"))
         ]
 
-        window["ImgList"].update(fname)
+        window["listImage"].update(fname)
 
-    elif event == "ImgList":
+    elif event == "listImage":
 
         try:
             filename = os.path.join(
-                values["ImgFolder"], values["ImgList"][0]
+                values["folderImage"], values["listImage"][0]
             )
             window["FilepathImgInput"].update(filename)
             window["ImgInputViewer"].update(filename=filename)
-            window["ImgProcessingType"].update(filename)
+            window["typeProcessing"].update(filename)
             window["ImgOutputViewer"].update(filename=filename)
             img_input = Image.open(filename)
-            # img_input.show()
 
-            # Size
             img_width, img_height = img_input.size
-            window["ImgSize"].update(
+            window["imageSize"].update(
                 "Image Size : "+str(img_width)+" x "+str(img_height))
 
-            # Color depth
             mode_to_coldepth = {"1": 1, "L": 8, "P": 8, "RGB": 24, "RGBA": 32,
                                 "CMYK": 32, "YCbCr": 24, "LAB": 24, "HSV": 24, "I": 32, "F": 32}
             coldepth = mode_to_coldepth[img_input.mode]
-            window["ImgColorDepth"].update("Color Depth : "+str(coldepth))
+            window["imageColorDepth"].update("Color Depth : "+str(coldepth))
         except:
             pass
 
-    elif event == "ImgNegative":
+    elif event == "negativeImage":
 
         try:
-            window["ImgProcessingType"].update("Image Negative")
-            img_output = ImgNegative(img_input, coldepth)
+            window["typeProcessing"].update("Image Negative")
+            img_output = negative(img_input, coldepth)
             img_output.save(filename_out)
             window["ImgOutputViewer"].update(filename=filename_out)
 
@@ -195,9 +194,9 @@ while True:
         except:
             pass
 
-    elif event == "Rotate":
+    elif event == "rotateImage":
         try:
-            window["ImgProcessingType"].update("Image Rotate")
+            window["typeProcessing"].update("Image Rotate")
 
             window["sliderRotate"].update(visible=True)
             window["submitValueDeg"].update(visible=True)
@@ -217,14 +216,14 @@ while True:
     elif event == "submitValueDeg":
         try:
             val= int(values["sliderRotate"])
-            window["ImgProcessingType"].update("Image Rotate")
-            img_output = ImageRotate(img_input, coldepth, val)
+            window["typeProcessing"].update("Image Rotate")
+            img_output = rotate(img_input, coldepth, val)
             img_output.save(filename_out)
             window["ImgOutputViewer"].update(filename=filename_out)
         except:
             pass
 
-    elif event == "ImgThreshold":
+    elif event == "thresholdImage":
 
         try:
             window["sliderRotate"].update(visible=False)
@@ -246,14 +245,14 @@ while True:
     elif event == "submitThreshold":
         try:
             val= int(values["sliderThreshold"])
-            window["ImgProcessingType"].update("Image Brightness")
-            img_output = ImgThreshold(img_input, coldepth, val)
+            window["typeProcessing"].update("Image Brightness")
+            img_output = threshold(img_input, coldepth, val)
             img_output.save(filename_out)
             window["ImgOutputViewer"].update(filename=filename_out)
         except:
             pass
 
-    elif event == "ImgBrightness":
+    elif event == "imageBrightness":
         
         try:
             window["sliderRotate"].update(visible=False)
@@ -275,22 +274,22 @@ while True:
     elif event == "submitBrightness":
         try:
             val= int(values["sliderBrightness"])
-            window["ImgProcessingType"].update("Image Brightness")
-            img_output = ImgBrightness(img_input, coldepth, val)
+            window["typeProcessing"].update("Image Brightness")
+            img_output = brightness(img_input, coldepth, val)
             img_output.save(filename_out)
             window["ImgOutputViewer"].update(filename=filename_out)
         except:
             pass
 
 
-    elif event == "ImgLogarithmic":
+    elif event == "imageLogarithmic":
 
         try:
             window["sliderRotate"].update(visible=False)
             window["submitValueDeg"].update(visible=False)
 
-            window["ImgProcessingType"].update("Image logarithmic")
-            img_output = ImgLogarithmic(img_input, coldepth)
+            window["typeProcessing"].update("Image logarithmic")
+            img_output = logarithmic(img_input, coldepth)
             img_output.save(filename_out)
             window["ImgOutputViewer"].update(filename=filename_out)
         except:
@@ -299,8 +298,8 @@ while True:
     elif event == "Vertical":
         try:
             flip = "vertical"
-            window["ImgProcessingType"].update("Image Flipping Vertical")
-            img_output = ImageFlipping(img_input, coldepth, flip)
+            window["typeProcessing"].update("Image Flipping Vertical")
+            img_output = flipping(img_input, coldepth, flip)
             img_output.save(filename_out)
             window["ImgOutputViewer"].update(filename=filename_out)
 
@@ -320,8 +319,8 @@ while True:
     elif event == "Horizontal":
         try:
             flip = "horizontal"
-            window["ImgProcessingType"].update("Image Flipping Horizontal")
-            img_output = ImageFlipping(img_input, coldepth, flip)
+            window["typeProcessing"].update("Image Flipping Horizontal")
+            img_output = flipping(img_input, coldepth, flip)
             img_output.save(filename_out)
             window["ImgOutputViewer"].update(filename=filename_out)
 
@@ -344,8 +343,8 @@ while True:
     elif event == "VerticalHorizontal":
         try:
             flip = "ver-hor"
-            window["ImgProcessingType"].update("Image Flipping Vertical Horizontal")
-            img_output = ImageFlipping(img_input, coldepth, flip)
+            window["typeProcessing"].update("Image Flipping Vertical Horizontal")
+            img_output = flipping(img_input, coldepth, flip)
             img_output.save(filename_out)
             window["ImgOutputViewer"].update(filename=filename_out)
 
@@ -370,7 +369,6 @@ while True:
             window["sliderZoom"].update(visible=True)
             window["submitZoom"].update(visible=True)
 
-
             window["sliderRotate"].update(visible=False)
             window["submitValueDeg"].update(visible=False)
 
@@ -386,8 +384,8 @@ while True:
     elif event == "submitZoom":
         try:
             ScaleFactor = int(values["sliderZoom"])
-            window["ImgProcessingType"].update("Zoom Out")
-            img_output = ImgZout(img_input, coldepth, ScaleFactor)
+            window["typeProcessing"].update("Zoom Out")
+            img_output = zoomOut(img_input, coldepth, ScaleFactor)
             img_output.save(filename_out)
             window["ImgOutputViewer"].update(filename=filename_out)
         except:
@@ -397,7 +395,6 @@ while True:
         try:
             window["sliderZoom"].update(visible=True)
             window["submitZoomIn"].update(visible=True)
-
 
             window["sliderRotate"].update(visible=False)
             window["submitValueDeg"].update(visible=False)
@@ -415,8 +412,8 @@ while True:
     elif event == "submitZoomIn":
         try:
             ScaleFactor = int(values["sliderZoom"])
-            window["ImgProcessingType"].update("Zoom Out")
-            img_output = ImgZin(img_input, coldepth, ScaleFactor)
+            window["typeProcessing"].update("Zoom Out")
+            img_output = zoomIn(img_input, coldepth, ScaleFactor)
             img_output.save(filename_out)
             window["ImgOutputViewer"].update(filename=filename_out)
         except:
@@ -424,7 +421,7 @@ while True:
 
     elif event == "cancel":
         try:
-            window["ImgProcessingType"].update("")
+            window["typeProcessing"].update("")
             img_output = img_input
             img_output.save(filename_out)
             window["ImgOutputViewer"].update(filename=filename_out)
