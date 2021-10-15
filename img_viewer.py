@@ -61,7 +61,7 @@ list_processing = [
         sg.Button("Image Logarithmic", size=(20, 1), key="imageLogarithmic"),
     ],
     [
-        sg.Text("Image Flip: "),
+        sg.Text("Flipping: "),
     ],
     [
         sg.Button("Horizontal", size=(9, 1), key="Horizontal"),
@@ -71,13 +71,13 @@ list_processing = [
         sg.Button("Vertical Horizontal", size=(20, 1), key="VerticalHorizontal")
     ],
     [
-        sg.Text("Image Rotate : ")
+        sg.Text("Rotating : ")
     ],
     [
-        sg.Button("rotateImage", size=(20, 1), key="rotateImage")
+        sg.Button("Rotate", size=(20, 1), key="rotateImage")
     ],
     [
-        sg.Text("Image Scalling: ")
+        sg.Text("Scalling: ")
     ],
     [
         sg.Button("Zoom In", size=(9, 1), key="zoomIn"),
@@ -93,7 +93,7 @@ list_processing = [
         sg.Button("OK", size=(2, 1), key="submitValueDeg", visible=False), 
         sg.Button("OK", size=(2, 1), key="submitBrightness", visible=False), 
         sg.Button("OK", size=(2, 1), key="submitThreshold", visible=False),
-        sg.Button("OK", size=(2, 1), key="submitZoom", visible=False),
+        sg.Button("OK", size=(2, 1), key="submitZoomOut", visible=False),
         sg.Button("OK", size=(2, 1), key="submitZoomIn", visible=False)
     ],
     [
@@ -188,7 +188,7 @@ while True:
             window["submitThreshold"].update(visible=False)
 
             window["sliderZoom"].update(visible=False)
-            window["submitZoom"].update(visible=False)
+            window["submitZoomOut"].update(visible=False)
 
             window["submitZoomIn"].update(visible=False)
         except:
@@ -208,7 +208,7 @@ while True:
             window["submitThreshold"].update(visible=False)
 
             window["sliderZoom"].update(visible=False)
-            window["submitZoom"].update(visible=False)
+            window["submitZoomOut"].update(visible=False)
 
             window["submitZoomIn"].update(visible=False)
         except:
@@ -236,7 +236,7 @@ while True:
             window["submitBrightness"].update(visible=False)
 
             window["sliderZoom"].update(visible=False)
-            window["submitZoom"].update(visible=False)
+            window["submitZoomOut"].update(visible=False)
 
             window["submitZoomIn"].update(visible=False)
         except:
@@ -265,7 +265,7 @@ while True:
             window["submitThreshold"].update(visible=False)
 
             window["sliderZoom"].update(visible=False)
-            window["submitZoom"].update(visible=False)
+            window["submitZoomOut"].update(visible=False)
 
             window["submitZoomIn"].update(visible=False)
         except:
@@ -310,7 +310,7 @@ while True:
             window["submitBrightness"].update(visible=False)
 
             window["sliderZoom"].update(visible=False)
-            window["submitZoom"].update(visible=False)
+            window["submitZoomOut"].update(visible=False)
 
             window["submitZoomIn"].update(visible=False)
         except:
@@ -334,7 +334,7 @@ while True:
             window["submitThreshold"].update(visible=False)
 
             window["sliderZoom"].update(visible=False)
-            window["submitZoom"].update(visible=False)
+            window["submitZoomOut"].update(visible=False)
 
             window["submitZoomIn"].update(visible=False)
         except:
@@ -358,7 +358,7 @@ while True:
             window["submitThreshold"].update(visible=False)
 
             window["sliderZoom"].update(visible=False)
-            window["submitZoom"].update(visible=False)
+            window["submitZoomOut"].update(visible=False)
 
             window["submitZoomIn"].update(visible=False)
         except:
@@ -367,7 +367,7 @@ while True:
     elif event == "ZoomOut":
         try:
             window["sliderZoom"].update(visible=True)
-            window["submitZoom"].update(visible=True)
+            window["submitZoomOut"].update(visible=True)
 
             window["sliderRotate"].update(visible=False)
             window["submitValueDeg"].update(visible=False)
@@ -381,11 +381,11 @@ while True:
         except:
             pass
 
-    elif event == "submitZoom":
+    elif event == "submitZoomOut":
         try:
             ScaleFactor = int(values["sliderZoom"])
             window["typeProcessing"].update("Zoom Out")
-            img_output = zoomOut(img_input, coldepth, ScaleFactor)
+            img_output = zooming(img_input, coldepth, ScaleFactor, 'out')
             img_output.save(filename_out)
             window["ImgOutputViewer"].update(filename=filename_out)
         except:
@@ -405,15 +405,15 @@ while True:
             window["sliderThreshold"].update(visible=False)
             window["submitThreshold"].update(visible=False)
 
-            window["submitZoom"].update(visible=False)
+            window["submitZoomOut"].update(visible=False)
         except:
             pass
     
     elif event == "submitZoomIn":
         try:
-            ScaleFactor = int(values["sliderZoom"])
-            window["typeProcessing"].update("Zoom Out")
-            img_output = zoomIn(img_input, coldepth, ScaleFactor)
+            scaleFactor = int(values["sliderZoom"])
+            window["typeProcessing"].update("Zoom In")
+            img_output = zooming(img_input, coldepth, scaleFactor, 'in')
             img_output.save(filename_out)
             window["ImgOutputViewer"].update(filename=filename_out)
         except:
@@ -436,7 +436,7 @@ while True:
             window["submitThreshold"].update(visible=False)
 
             window["sliderZoom"].update(visible=False)
-            window["submitZoom"].update(visible=False)
+            window["submitZoomOut"].update(visible=False)
             window["submitZoomIn"].update(visible=False)
         except:
             pass
