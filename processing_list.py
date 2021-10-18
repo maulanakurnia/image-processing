@@ -1,13 +1,13 @@
-from PIL import Image, ImageDraw
-import math
-from math import sin, cos, radians
+from math import cos, log, sin
+from PIL import Image
 
-# MAIN FEATURE
-def threshold(input_image, coldepth, val):
+# Main Feature
+def thresholding(input_image, coldepth, val):
     if coldepth != 25:
         input_image = input_image.convert('RGB')
         T = val
-        output_image = Image.new('RGB', (input_image.size[0], input_image.size[1]))
+        output_image = Image.new(
+            'RGB', (input_image.size[0], input_image.size[1]))
         pixels = output_image.load()
 
     for i in range(output_image.size[0]):
@@ -27,150 +27,215 @@ def threshold(input_image, coldepth, val):
 
     return output_image
 
-def negative(input_image, coldepth):
-    if coldepth != 24:
-        input_image = input_image.convert('RGB')
 
-    output_image = Image.new('RGB', (input_image.size[0], input_image.size[1]))
-    pixels = output_image.load()
-    for i in range(output_image.size[0]):
-        for j in range(output_image.size[1]):
-            r, g, b = input_image.getpixel((i, j))
-            pixels[i, j] = (255-r, 255-g, 255-b)
+def negative(input_image, color_depth):
+    if color_depth != 24:
+        input_image = input_image.convert("RGB")
+    input_pixels = input_image.load()
+    output_image = Image.new("RGB", input_image.size)
+    output_pixels = output_image.load()
 
-    if coldepth == 1:
+    horizontal_size = output_image.size[0]
+    vertical_size = output_image.size[1]
+
+    for x in range(horizontal_size):
+        for y in range(vertical_size):
+            R = 255 - input_pixels[x, y][0]
+            G = 255 - input_pixels[x, y][1]
+            B = 255 - input_pixels[x, y][2]
+            output_pixels[x, y] = (R, G, B)
+
+    if color_depth == 1:
         output_image = output_image.convert("1")
-    elif coldepth == 8:
+    elif color_depth == 8:
         output_image = output_image.convert("L")
     else:
         output_image = output_image.convert("RGB")
 
     return output_image
 
-def brightness(input_image, coldepth, val):
-    if coldepth != 25:
-        input_image = input_image.convert('RGB')
-        bright = val
-        output_image = Image.new('RGB', (input_image.size[0], input_image.size[1]))
-        pixels = output_image.load()
-    for i in range(output_image.size[0]):
-        for j in range(output_image.size[1]):
-            r, g, b = input_image.getpixel((i, j))
-            pixels[i, j] = (bright+r, bright+g, bright+b)
-            if pixels[i, j] > (255, 255, 255):
-                pixels[i, j] = (255, 255, 255)
-            elif pixels[i, j] < (0, 0, 0):
-                pixels[i, j] = (0, 0, 0)
 
-    if coldepth == 1:
-        output_image = output_image.convert("1")
-    elif coldepth == 8:
-        output_image = output_image.convert("L")
-    else:
-        output_image = output_image.convert("RGB")
+def clipping(intensity):
+    if intensity < 0:
+        return 0
+    if intensity > 255:
+        return 255
+    return intensity
 
-    return output_image
 
-def rotate(input_image, coldepth, deg):
-    if coldepth != 25:
-        input_image = input_image.convert('RGB')
-
-    # Load Image
+def brightness(input_image, color_depth, enlightenment_value):
+    if color_depth != 25:
+        input_image = input_image.convert("RGB")
     input_pixels = input_image.load()
 
-    # create output image
-    output_image = Image.new('RGB', input_image.size)
-    draw = ImageDraw.Draw(output_image)
+    output_image = Image.new("RGB", input_image.size)
+    output_pixels = output_image.load()
 
-    angle = radians(deg)
-    center_x = input_image.width / 2
-    center_y = input_image.height / 2
+    horizontal_size = output_image.size[0]
+    vertical_size = output_image.size[1]
 
-    # Copy Pixels
-    for x in range(input_image.width):
-        for y in range(input_image.height):
-            xp = int((x - center_x) * cos(angle) - (y - center_y) * sin(angle) + center_x)
-            yp = int((x - center_x) * sin(angle) + (y - center_y) * cos(angle) + center_y)
-            if 0 <= xp < input_image.width and 0 <= yp < input_image.height:
-                draw.point((x, y), input_pixels[xp, yp])
-    return output_image
+    for x in range(horizontal_size):
+        for y in range(vertical_size):
+            R = clipping(input_pixels[x, y][0] + enlightenment_value)
+            G = clipping(input_pixels[x, y][1] + enlightenment_value)
+            B = clipping(input_pixels[x, y][2] + enlightenment_value)
+            output_pixels[x, y] = (R, G, B)
 
-def flipping(input_image, coldepth, flip):
-    if coldepth != 25:
-        input_image = input_image.convert('RGB')
-        output_image = Image.new('RGB', (input_image.size[1], input_image.size[0]))
-        pixels = output_image.load()
-    for i in range(output_image.size[0]):
-        for j in range(output_image.size[1]):
-            if flip == "vertical":
-                r, g, b = input_image.getpixel((i, input_image.size[1] - 1 - j))
-            elif flip == "horizontal":
-                r, g, b = input_image.getpixel((input_image.size[0] - 1 - i, j))
-            elif flip == "ver-hor":
-                r, g, b = input_image.getpixel((input_image.size[0] - 1 - i, input_image.size[1] - 1 -  j))
-            pixels[i, j] = (r, g, b)
-
-    if coldepth == 1:
+    if color_depth == 1:
         output_image = output_image.convert("1")
-    elif coldepth == 8:
+    elif color_depth == 8:
         output_image = output_image.convert("L")
     else:
         output_image = output_image.convert("RGB")
 
     return output_image
 
-# Zoom In & Zoom Out (Shinkring)
-def zooming(input_image, coldepth, scale, type):
-    if coldepth != 24:
-        input_image = input_image.convert('RGB')
 
-    if type == 'in':
-        output_image = Image.new('RGB', (input_image.size[0]*scale, input_image.size[1]*scale))
-        pixels = output_image.load()
-        for i in range(output_image.size[0]):
-            for j in range(output_image.size[1]):
-                r, g, b = input_image.getpixel((int(i/scale), int(j/scale)))
-                pixels[i, j] = (r, g, b)
-    else:
-        output_image = Image.new('RGB', (int(input_image.size[0]/scale), int(input_image.size[1]/scale)))
-        pixels = output_image.load()
-        for i in range(output_image.size[0]):
-            for j in range(output_image.size[1]):
-                r, g, b = input_image.getpixel((i*scale, j*scale))
-                pixels[i, j] = (r, g, b)
+def rotating(input_image, color_depth, deg):
+    if color_depth != 25:
+        input_image = input_image.convert("RGB")
+        input_pixels = input_image.load()
 
-    if coldepth == 1:
+    horizontal_size = input_image.size[0]
+    vertical_size = input_image.size[1]
+
+    output_image = Image.new("RGB", input_image.size)
+    output_pixels = output_image.load()
+
+    x0 = horizontal_size//2
+    y0 = vertical_size//2
+
+    for x1 in range(horizontal_size):
+        for y1 in range(vertical_size):
+            radian = deg * 22/7 / 180
+
+            # rotation formula with center of free rotation
+            # source : https://homepages.inf.ed.ac.uk/rbf/HIPR2/rotate.htm
+            x2 = int((x1-x0)*cos(radian) - (y1-y0)*sin(radian)+x0)
+            y2 = int((x1-x0)*sin(radian) + (y1-y0)*cos(radian)+y0)
+            if (x2 >= horizontal_size or y2 >= vertical_size or x2 < 0 or y2 < 0):
+                output_pixels[x1, y1] = (0, 0, 0)
+            else:
+                output_pixels[x1, y1] = input_pixels[x2, y2]
+
+    if color_depth == 1:
         output_image = output_image.convert("1")
-    elif coldepth == 8:
+    elif color_depth == 8:
         output_image = output_image.convert("L")
     else:
         output_image = output_image.convert("RGB")
 
     return output_image
 
-# ADDITIONAL FEATURE
+
+def flipping(input_image, color_depth, type):
+    input_image = input_image
+    input_pixels = input_image.load()
+
+    if color_depth != 25:
+        input_image = input_image.convert("RGB")
+
+    horizontal_size = input_image.size[0]
+    vertical_size = input_image.size[1]
+
+    output_image = Image.new("RGB", input_image.size)
+    output_pixels = output_image.load()
+
+    for x in range(horizontal_size):
+        for y in range(vertical_size):
+            if type == "vertical":
+                output_pixels[x, y] = input_pixels[x, vertical_size-1-y]
+            elif type == "horizontal":
+                output_pixels[x, y] = input_pixels[horizontal_size-1-x, y]
+            else:
+                output_pixels[x, y] = input_pixels[horizontal_size -
+                                                   1-x, vertical_size-1-y]
+    if color_depth == 1:
+        output_image = output_image.convert("1")
+    elif color_depth == 8:
+        output_image = output_image.convert("L")
+    else:
+        output_image = output_image.convert("RGB")
+
+    return output_image
+
+
+def zooming(input_image, color_depth, scale):
+    if color_depth != 24:
+        input_image = input_image.convert("RGB")
+
+    output_image = Image.new(
+        "RGB", (input_image.size[0]*scale, input_image.size[1]*scale))
+    output_pixels = output_image.load()
+
+    horizontal_size = output_image.size[0]
+    vertical_size = output_image.size[1]
+
+    for x in range(horizontal_size):
+        for y in range(vertical_size):
+            r, g, b = input_image.getpixel((x/scale, y/scale))
+            output_pixels[x, y] = (r, g, b)
+
+    if color_depth == 1:
+        output_image = output_image.convert("1")
+    elif color_depth == 8:
+        output_image = output_image.convert("L")
+    else:
+        output_image = output_image.convert("RGB")
+
+    return output_image
+
+
+def shringking(input_image, color_depth, scale):
+    if color_depth != 24:
+        input_image = input_image.convert("RGB")
+
+    output_image = Image.new(
+        "RGB", (int(input_image.size[0]/scale), int(input_image.size[1]/scale)))
+    output_pixels = output_image.load()
+
+    horizontal_size = output_image.size[0]
+    vertical_size = output_image.size[1]
+
+    for x in range(horizontal_size):
+        for y in range(vertical_size):
+            r, g, b = input_image.getpixel((x*scale, y*scale))
+            output_pixels[x, y] = (r, g, b)
+
+    if color_depth == 1:
+        output_image = output_image.convert("1")
+    elif color_depth == 8:
+        output_image = output_image.convert("L")
+    else:
+        output_image = output_image.convert("RGB")
+
+    return output_image
+
+
+# Additional Feature
 def blending(input_image_1, input_image_2, coldepth):
     if coldepth != 25:
         input_image_1 = input_image_1.convert('RGB')
         input_pixels_1 = input_image_1.load()
-        
+
         input_image_2 = input_image_2.convert('RGB')
         input_pixels_2 = input_image_2.load()
 
-        output_image = Image.new("RGB", (input_image_1.size[0], input_image_1.size[1]))
+        output_image = Image.new(
+            "RGB", (input_image_1.size[0], input_image_1.size[1]))
         output_pixels = output_image.load()
 
     for x in range(input_image_1.size[0]):
         for y in range(input_image_1.size[1]):
-            r = input_pixels_1[x,y][0] - input_pixels_2[x,y][0]
-            g = input_pixels_1[x,y][1] - input_pixels_2[x,y][1]
-            b = input_pixels_1[x,y][2] - input_pixels_2[x,y][2]
-            output_pixels[x,y] = (r,g,b)
+            r = input_pixels_1[x, y][0] - input_pixels_2[x, y][0]
+            g = input_pixels_1[x, y][1] - input_pixels_2[x, y][1]
+            b = input_pixels_1[x, y][2] - input_pixels_2[x, y][2]
+            output_pixels[x, y] = (r, g, b)
 
             # jika terdapat perbedaan antara pixel 1 & pixel 2,
             # gunakan pixel 2
-            if(r > 0 or g > 0 or b >0):
-                output_pixels[x,y] = input_pixels_2[x,y]
+            if(r > 0 or g > 0 or b > 0):
+                output_pixels[x, y] = input_pixels_2[x, y]
 
     if coldepth == 1:
         output_image = output_image.convert("1")
@@ -178,7 +243,7 @@ def blending(input_image_1, input_image_2, coldepth):
         output_image = output_image.convert("L")
     else:
         output_image = output_image.convert("RGB")
-        
+
     return output_image
 
 
@@ -186,14 +251,15 @@ def logarithmic(input_image, coldepth):
     if coldepth != 25:
         input_image = input_image.convert('RGB')
         C = 40
-        output_image = Image.new('RGB', (input_image.size[0], input_image.size[1]))
+        output_image = Image.new(
+            'RGB', (input_image.size[0], input_image.size[1]))
         pixels = output_image.load()
     for i in range(output_image.size[0]):
         for j in range(output_image.size[1]):
             r, g, b = input_image.getpixel((i, j))
-            pixels[i, j] = (int(C*math.log(1+r)),
-                            int(C*math.log(1+g)), 
-                            int(C*math.log(1+b)))
+            pixels[i, j] = (int(C*log(1+r)),
+                            int(C*log(1+g)),
+                            int(C*log(1+b)))
     if coldepth == 1:
         output_image = output_image.convert("1")
     elif coldepth == 8:
@@ -203,12 +269,14 @@ def logarithmic(input_image, coldepth):
 
     return output_image
 
+
 def translation(input_image, coldepth, shift):
     if coldepth != 25:
         input_image = input_image.convert("RGB")
         input_pixels = input_image.load()
 
-        output_image = Image.new('RGB', (input_image.size[1], input_image.size[0]))
+        output_image = Image.new(
+            'RGB', (input_image.size[1], input_image.size[0]))
         output_pixels = output_image.load()
 
     start_m = shift[0]
@@ -225,9 +293,9 @@ def translation(input_image, coldepth, shift):
             new_y = y - shift[1]
 
             if(new_x >= input_image.size[0] or new_y >= input_image.size[1] or new_x < 0 or new_y < 0):
-                output_pixels[x,y] = (0,0,0)
+                output_pixels[x, y] = (0, 0, 0)
             else:
-                output_pixels[x,y] = input_pixels[new_x, new_y]
+                output_pixels[x, y] = input_pixels[new_x, new_y]
 
     if coldepth == 1:
         output_image = output_image.convert("1")
@@ -235,5 +303,5 @@ def translation(input_image, coldepth, shift):
         output_image = output_image.convert("L")
     else:
         output_image = output_image.convert("RGB")
-        
+
     return output_image
