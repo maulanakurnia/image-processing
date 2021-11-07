@@ -1,7 +1,9 @@
 from math import cos, log, sin
-from PIL import Image
+from PIL import Image, ImageDraw
 
 # Main Feature
+
+
 def thresholding(input_image, coldepth, val):
     if coldepth != 25:
         input_image = input_image.convert('RGB')
@@ -232,8 +234,8 @@ def blending(input_image_1, input_image_2, coldepth):
             b = input_pixels_1[x, y][2] - input_pixels_2[x, y][2]
             output_pixels[x, y] = (r, g, b)
 
-            # jika terdapat perbedaan antara pixel 1 & pixel 2,
-            # gunakan pixel 2
+            # if there is a difference
+            # between pixel 1 & pixel 2, use pixels 2
             if(r > 0 or g > 0 or b > 0):
                 output_pixels[x, y] = input_pixels_2[x, y]
 
@@ -297,6 +299,44 @@ def translation(input_image, coldepth, shift):
             else:
                 output_pixels[x, y] = input_pixels[new_x, new_y]
 
+    if coldepth == 1:
+        output_image = output_image.convert("1")
+    elif coldepth == 8:
+        output_image = output_image.convert("L")
+    else:
+        output_image = output_image.convert("RGB")
+
+    return output_image
+
+def blur(input_image, coldepth):
+    if coldepth != 25:
+        input_image = input_image.convert("RGB")
+        input_pixels = input_image.load()
+
+        output_image = Image.new(
+            'RGB', (input_image.size[1], input_image.size[0]))
+        output_pixels = output_image.load()
+
+    box_kernel = [
+        [1 / 9, 1 / 9, 1 / 9],
+        [1 / 9, 1 / 9, 1 / 9],
+        [1 / 9, 1 / 9, 1 / 9]]
+
+    kernel = box_kernel
+    offset = len(kernel)//2
+
+    for x in range(offset, input_image.width - offset):
+        for y in range(offset, input_image.height - offset):
+            acc = [0,0,0]
+            for a in range(len(kernel)):
+                for b in range(len(kernel)):
+                    xn = x + a - offset
+                    yn = y + b - offset
+                    pixel = input_pixels[xn, yn]
+                    acc[0] += pixel[0] * kernel[a][b]
+                    acc[1] += pixel[1] * kernel[a][b]
+                    acc[2] += pixel[2] * kernel[a][b]
+            output_pixels[x,y] = (int(acc[0]), int(acc[1]), int(acc[2]))
     if coldepth == 1:
         output_image = output_image.convert("1")
     elif coldepth == 8:

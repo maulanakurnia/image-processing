@@ -44,6 +44,11 @@ list_processing = [
     ],
 
     [sg.HSeparator()],
+    [sg.Text("Filter : ")],
+
+    [sg.Button("Media Filter", size=(20, 1), key="image_blur")],
+    
+    [sg.HSeparator()],
     [
         # TEXT LABEL
         sg.Text("Image Thresholding : ",

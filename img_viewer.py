@@ -587,6 +587,15 @@ while True:
         except:
             pass
 
+    elif event == "image_blur":
+        try:
+            window["type_processing"].update("Median Filtering (Blur)")
+            output_image = blur(input_image, color_depth)
+            output_image.save(filename_out)
+            window["preview_output_image"].update(filename=filename_out)
+        except:
+            pass
+
     elif event == "cancel":
         try:
             output_image = input_image
