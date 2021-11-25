@@ -21,6 +21,7 @@ input_image_preview = [
     [sg.Text(size=(40, 1), key="image_path")],
     [sg.Image(key="preview_input_image")],
 ]
+
 list_processing = [
     [sg.Text("Main Feature : ")],
     [sg.Button("Image Thresholding", size=(20, 1), key="image_thresholding")],
@@ -46,8 +47,9 @@ list_processing = [
     [sg.HSeparator()],
     [sg.Text("Filter : ")],
 
-    [sg.Button("Media Filter", size=(20, 1), key="image_blur")],
-    
+    [sg.Button("Median Filter", size=(20, 1), key="median_filter")],
+    [sg.Button("Mean Filter", size=(20, 1), key="mean_filter")],
+
     [sg.HSeparator()],
     [
         # TEXT LABEL
@@ -108,7 +110,7 @@ list_processing = [
         sg.Button("Apply", size=(20, 1),
                   key="submit_translation", visible=False),
     ],
-    [sg.Button("Cancel", size=(20, 1), key="cancel", visible=False)]
+    [sg.Button("Reset", size=(20, 1), key="cancel", visible=False)]
 ]
 
 output_image_preview = [

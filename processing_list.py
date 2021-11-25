@@ -1,11 +1,11 @@
 from math import cos, log, sin
-from PIL import Image, ImageDraw
+from PIL import Image
 
 # Main Feature
 
 
-def thresholding(input_image, coldepth, val):
-    if coldepth != 25:
+def thresholding(input_image, color_depth, val):
+    if color_depth != 25:
         input_image = input_image.convert('RGB')
         T = val
         output_image = Image.new(
@@ -20,9 +20,9 @@ def thresholding(input_image, coldepth, val):
             else:
                 pixels[i, j] = (255, 255, 255)
 
-    if coldepth == 1:
+    if color_depth == 1:
         output_image = output_image.convert("1")
-    elif coldepth == 8:
+    elif color_depth == 8:
         output_image = output_image.convert("L")
     else:
         output_image = output_image.convert("RGB")
@@ -31,7 +31,7 @@ def thresholding(input_image, coldepth, val):
 
 
 def negative(input_image, color_depth):
-    if color_depth != 24:
+    if color_depth != 25:
         input_image = input_image.convert("RGB")
     input_pixels = input_image.load()
     output_image = Image.new("RGB", input_image.size)
@@ -163,7 +163,7 @@ def flipping(input_image, color_depth, type):
 
 
 def zooming(input_image, color_depth, scale):
-    if color_depth != 24:
+    if color_depth != 25:
         input_image = input_image.convert("RGB")
 
     output_image = Image.new(
@@ -189,7 +189,7 @@ def zooming(input_image, color_depth, scale):
 
 
 def shringking(input_image, color_depth, scale):
-    if color_depth != 24:
+    if color_depth != 25:
         input_image = input_image.convert("RGB")
 
     output_image = Image.new(
@@ -215,8 +215,8 @@ def shringking(input_image, color_depth, scale):
 
 
 # Additional Feature
-def blending(input_image_1, input_image_2, coldepth):
-    if coldepth != 25:
+def blending(input_image_1, input_image_2, color_depth):
+    if color_depth != 25:
         input_image_1 = input_image_1.convert('RGB')
         input_pixels_1 = input_image_1.load()
 
@@ -239,9 +239,9 @@ def blending(input_image_1, input_image_2, coldepth):
             if(r > 0 or g > 0 or b > 0):
                 output_pixels[x, y] = input_pixels_2[x, y]
 
-    if coldepth == 1:
+    if color_depth == 1:
         output_image = output_image.convert("1")
-    elif coldepth == 8:
+    elif color_depth == 8:
         output_image = output_image.convert("L")
     else:
         output_image = output_image.convert("RGB")
@@ -249,8 +249,35 @@ def blending(input_image_1, input_image_2, coldepth):
     return output_image
 
 
-def logarithmic(input_image, coldepth):
-    if coldepth != 25:
+# def blending(input_image, color_depth, input_image2, color_depth2, alpha, alpha2):
+#     if color_depth != 24:
+#         input_image = input_image.convert("RGB")
+#     elif color_depth2 != 24:
+#         input_image2 = input_image2.convert("RGB")
+
+#     output_image = Image.new("RGB", (input_image.size[0], input_image.size[1]))
+#     output_pixels = output_image.load()
+
+#     for i in range(output_image.size[0]):
+#         for j in range(output_image.size[1]):
+#             color1 = input_image.getpixel((i,j))
+#             color2 = input_image2.getpixel((i,j))
+#             r = int(color1[0]*alpha) + int(color2[0]*alpha2)
+#             g = int(color1[1]*alpha) + int(color2[1]*alpha2)
+#             b = int(color1[2]*alpha) + int(color2[2]*alpha2)
+#             output_pixels[i,j] = (r,g,b)
+
+#     if color_depth == 1:
+#         output_image = output_image.convert("1")
+#     elif color_depth == 8:
+#         output_image = output_image.convert("L")
+#     else:
+#         output_image = output_image.convert("RGB")
+
+#     return output_image
+
+def logarithmic(input_image, color_depth):
+    if color_depth != 25:
         input_image = input_image.convert('RGB')
         C = 40
         output_image = Image.new(
@@ -262,9 +289,9 @@ def logarithmic(input_image, coldepth):
             pixels[i, j] = (int(C*log(1+r)),
                             int(C*log(1+g)),
                             int(C*log(1+b)))
-    if coldepth == 1:
+    if color_depth == 1:
         output_image = output_image.convert("1")
-    elif coldepth == 8:
+    elif color_depth == 8:
         output_image = output_image.convert("L")
     else:
         output_image = output_image.convert("RGB")
@@ -272,8 +299,8 @@ def logarithmic(input_image, coldepth):
     return output_image
 
 
-def translation(input_image, coldepth, shift):
-    if coldepth != 25:
+def translation(input_image, color_depth, shift):
+    if color_depth != 25:
         input_image = input_image.convert("RGB")
         input_pixels = input_image.load()
 
@@ -299,9 +326,42 @@ def translation(input_image, coldepth, shift):
             else:
                 output_pixels[x, y] = input_pixels[new_x, new_y]
 
-    if coldepth == 1:
+    if color_depth == 1:
         output_image = output_image.convert("1")
-    elif coldepth == 8:
+    elif color_depth == 8:
+        output_image = output_image.convert("L")
+    else:
+        output_image = output_image.convert("RGB")
+
+    return output_image
+
+def median_filter(input_image, color_depth):
+    if color_depth != 24:
+        input_image = input_image.convert("RGB")
+
+    output_image = Image.new(
+        "RGB", (input_image.size[0], input_image.size[1]), "white")
+    output_pixels = output_image.load()
+    mask = [(0, 0)] * 9
+    for i in range(input_image.size[0]-1):
+        for j in range(input_image.size[1]-1):
+            mask[0] = input_image.getpixel((i-1, j-1))
+            mask[1] = input_image.getpixel((i-1, j))
+            mask[2] = input_image.getpixel((i-1, j+1))
+
+            mask[3] = input_image.getpixel((i, j-1))
+            mask[4] = input_image.getpixel((i, j))
+            mask[5] = input_image.getpixel((i, j+1))
+
+            mask[6] = input_image.getpixel((i+1, j-1))
+            mask[7] = input_image.getpixel((i+1, j))
+            mask[8] = input_image.getpixel((i+1, j+1))
+            mask.sort()
+            output_image.putpixel((i, j), (mask[4]))
+
+    if color_depth == 1:
+        output_image = output_image.convert("1")
+    elif color_depth == 8:
         output_image = output_image.convert("L")
     else:
         output_image = output_image.convert("RGB")
@@ -340,6 +400,54 @@ def blur(input_image, coldepth):
     if coldepth == 1:
         output_image = output_image.convert("1")
     elif coldepth == 8:
+        output_image = output_image.convert("L")
+    else:
+        output_image = output_image.convert("RGB")
+
+    return output_image
+
+def averaging_filter(input_image, color_depth):
+    if color_depth != 24:
+        input_image = input_image.convert("RGB")
+
+    kernel = 3
+    temp1 = []
+    temp2 = []
+    temp3 = []
+    index = kernel // 2
+    output_image = Image.new("RGB", (input_image.size[0], input_image.size[1]))
+    output_pixels = output_image.load()
+
+    for i in range(output_image.size[0]):
+        for j in range(output_image.size[0]):
+            for z in range(kernel):
+                if i + z - index < 0 or i + z - index > input_image[0] - 1:
+                    for c in range(kernel):
+                        temp1.append(0)
+                        temp2.append(0)
+                        temp3.append(0)
+                else:
+                    if j + z - index < 0 or j + index > input_image.size[1] - 1:
+                        temp1.append(0)
+                        temp2.append(0)
+                        temp3.append(0)
+                    else:
+                        for k in range(kernel):
+                            r, g, b = input_image.getpixel(
+                                (i+z-index, j+k-index))
+                            temp1.append(r)
+                            temp1.append(g)
+                            temp1.append(b)
+            output_pixels[i, j] = (round((sum(temp1))/len(temp1)),
+                                   round((sum(temp2))/len(temp2)),
+                                   round((sum(temp3))/len(temp3)))
+            temp1 = []
+            temp2 = []
+            temp3 = []
+
+    if color_depth == 1:
+        output_image = output_image.convert("1")
+    elif color_depth == 8:
         output_image = output_image.convert("L")
     else:
         output_image = output_image.convert("RGB")
