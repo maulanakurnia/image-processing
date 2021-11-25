@@ -5,7 +5,7 @@ file_list_column = [
     [sg.Text("Open Image Folder :")],
     [sg.In(size=(20, 1), enable_events=True, key="folder_images"),
      sg.FolderBrowse()],
-    [sg.Text("Choose an image from list : ")],
+    [sg.Text("Choose an images from list : ")],
     [sg.Listbox(values=[], size=(25, 10),
                 key="list_image", enable_events=True)],
 
